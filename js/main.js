@@ -1,22 +1,20 @@
-var csvtojson = require('csvtojson');
+
 var csInterFace = new CSInterface();
 
 function init() {
-    var csvInput = document.getElementById('csv-input');
-    csvInput.addEventListener('change', createSubtitles);
+    var csvInput = document.getElementById('send');
+    csvInput.addEventListener('click', createSubtitles);
 }
 
-async function createSubtitles(event) {
-    var file = event.target.files[0];
+async function createSubtitles() {
+    var file = document.getElementById('csv-input').files[0];
     var csv = await readCsv(file);
     var subtitles = await convertCsvToJson(csv);
     await csEvalScript('init()');
-    console.log(subtitles)
     var res = await Promise.all(subtitles.map((subtitle) => {
         var str = subtitle[0];
         var inPointFrame = parseTimeToSeconds(subtitle[1]);
         var endPointFrame = parseTimeToSeconds(subtitle[2]);
-        console.log(`createSubtitle("${str}", ${inPointFrame}, ${endPointFrame})`);
         return csEvalScript(`createSubtitle("${str}", ${inPointFrame}, ${endPointFrame})`);
     }));
     console.log(res);
@@ -36,6 +34,7 @@ function readCsv(data) {
 
 function convertCsvToJson(text) {
     return new Promise((resolve, reject) => {
+        var csvtojson = require('csvtojson');
         csvtojson({noheader: true, output: "csv"})
             .fromString(text)
             .then(resolve)
