@@ -8,9 +8,13 @@ function init() {
 
 async function createSubtitles() {
     var file = document.getElementById('csv-input').files[0];
+    if (!file) {
+        alert('ファイルが選択されていません');
+        return -1;
+    }
     var csv = await readCsv(file);
     var subtitles = await convertCsvToJson(csv);
-    await csEvalScript('init()');
+    if ((await csEvalScript('init()')) === "-1") return -1;
     var res = await Promise.all(subtitles.map((subtitle) => {
         var str = subtitle[0];
         var inPointFrame = parseTimeToSeconds(subtitle[1]);
@@ -18,8 +22,11 @@ async function createSubtitles() {
         return csEvalScript(`createSubtitle("${str}", ${inPointFrame}, ${endPointFrame})`);
     }));
     console.log(res);
-    if (!res.every((r) => r === '0')) alert('処理を失敗しました');
-    else alert('完了');
+    if (!res.every((r) => r === '0')) {
+        alert('処理を失敗しました');
+        return -1;
+    } else alert('完了');
+    return 0;
 }
 
 function readCsv(data) {
