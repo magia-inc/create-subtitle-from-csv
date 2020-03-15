@@ -9,4 +9,9 @@ function createSubtitle(str, inPointFrame, outPointFrame) {
 
 function init() {
     activeComp = app.project.activeItem;
+    if (!activeComp) {
+        alert('コンポジションが選択されていません');
+        return -1;
+    }
+    return 0
 }
